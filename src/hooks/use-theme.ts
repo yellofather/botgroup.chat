@@ -1,83 +1,27 @@
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useState, useEffect } from 'react';
 
-type Theme = 'light' | 'dark' | 'system';
-type ResolvedTheme = 'light' | 'dark';
-
-const STORAGE_KEY = 'theme';
-
-function getSystemTheme(): ResolvedTheme {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
-function getStoredTheme(): Theme {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark' || stored === 'system') {
-      return stored;
-    }
-  } catch {}
-  return 'system';
-}
-
-function applyTheme(resolved: ResolvedTheme) {
-  const root = document.documentElement;
-  if (resolved === 'dark') {
-    root.classList.add('dark');
-  } else {
-    root.classList.remove('dark');
-  }
-}
-
-// Simple external store for cross-component sync
-let currentTheme: Theme = getStoredTheme();
-const listeners = new Set<() => void>();
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
-
-function getSnapshot(): Theme {
-  return currentTheme;
-}
-
-function setThemeValue(theme: Theme) {
-  currentTheme = theme;
-  try {
-    localStorage.setItem(STORAGE_KEY, theme);
-  } catch {}
-  const resolved = theme === 'system' ? getSystemTheme() : theme;
-  applyTheme(resolved);
-  listeners.forEach((l) => l());
-}
-
-// Apply theme on module load to avoid flash
-applyTheme(currentTheme === 'system' ? getSystemTheme() : currentTheme);
+// 模拟主题数据，跳过 /api/init 接口请求
+const mockThemeData = {
+  resolvedTheme: 'light', // 或 'dark'
+  // 模拟项目需要的其他初始化数据
+  models: [],
+  user: null,
+  config: {}
+};
 
 export function useTheme() {
-  const theme = useSyncExternalStore(subscribe, getSnapshot);
+  const [theme, setTheme] = useState(mockThemeData);
 
-  const resolvedTheme: ResolvedTheme = useMemo(
-    () => (theme === 'system' ? getSystemTheme() : theme),
-    [theme],
-  );
-
-  const setTheme = useCallback((t: Theme) => {
-    setThemeValue(t);
-  }, []);
-
-  // Listen for system theme changes when in 'system' mode
+  // 核心修改：跳过 /api/init 请求，直接使用模拟数据
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = () => {
-      if (currentTheme === 'system') {
-        applyTheme(getSystemTheme());
-        listeners.forEach((l) => l());
-      }
-    };
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    // 原代码：请求 /api/init 接口
+    // fetch('/api/init')
+    //   .then(res => res.json())
+    //   .then(data => setTheme(data));
+
+    // 现在：直接使用模拟数据，不请求接口
+    setTheme(mockThemeData);
   }, []);
 
-  return { theme, resolvedTheme, setTheme };
+  return theme;
 }
