@@ -5,10 +5,17 @@ import BasicLayout from './layouts/BasicLayout';
 
 export const router = createBrowserRouter([
   {
-  path: '/',
-  element: <BasicLayout />, // 直接显示布局，无登录拦截
-  children: [{ path: '', element: <Chat /> }],
-}
+    path: '/login',
+    element: <Login />,
+  },
+  {
+    path: '/',
+    element: <BasicLayout />, // 移除 AuthGuard，直接显示布局
+    children: [
+      {
+        path: '',
+        element: <Chat />,
+      },
     ],
   },
-]); 
+]);
