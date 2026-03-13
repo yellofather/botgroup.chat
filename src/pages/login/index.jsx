@@ -39,6 +39,27 @@ export default function Login() {
 
   const icpNumber = window.APP_CONFIG?.ICP_NUMBER;
 
+  import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // 新增：导入跳转钩子
+
+const LoginPage = () => {
+  const navigate = useNavigate(); // 新增：创建跳转实例
+
+  // 新增：组件加载后，直接跳转到聊天页（/），跳过登录
+  useEffect(() => {
+    navigate('/'); // 强制跳转到聊天主页面
+  }, [navigate]);
+
+  // 下面的登录按钮/UI 代码可以保留，也可以删，不影响
+  return (
+    <div className="login-container">
+      {/* 你原来的登录按钮代码 */}
+    </div>
+  );
+};
+
+export default LoginPage;
+  
   return (
     <div className="fixed inset-0 bg-white flex items-center justify-center">
       <div className={`w-full ${isMobile ? 'max-w-sm px-6' : 'max-w-md px-8'} ${isMobile ? 'py-6' : 'py-8'}`}>
